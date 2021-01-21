@@ -6,14 +6,6 @@ from collections import Counter
 
 stop_words = set(stopwords.words('english'))
 
-
-
-'''
-So, keep working. Keep striving. Never give up. Fall down seven times, get up eight. Ease is a greater threat to progress than hardship. Ease is a greater threat to progress than hardship. So, keep moving, keep growing, keep learning. See you at work.
-'''
-
-
-
 string = ""
 
 string = string.lower()
@@ -38,10 +30,7 @@ filtered_sentence_dict = dict(Counter(filtered_sentence))
 for k,v in filtered_sentence_dict.items():
     filtered_sentence_dict[k] = v/most_common
 
-
-
-
-
+# Score for each sentence
 sentence_score = {}
 for i in range(len(string_split)):
     score = 0
