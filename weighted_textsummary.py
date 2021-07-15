@@ -1,52 +1,54 @@
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from string import punctuation
 from collections import Counter
+import pprint
+
+paragraph = 'The Taj Mahal is a beautiful monument built in 1631 by an Emperor named Shah Jahan in memory of his wife Mumtaz Mahal. It is situated on the banks of river Yamuna at Agra. It looks beautiful in the moonlight. The Taj Mahal is made up of white marble. In front of the monument, there is a beautiful garden known as the Charbagh. Inside the monument, there are two tombs. These tombs are of Shah Jahan and his wife Mumtaz Mahal. The Taj Mahal is considered as one of the Seven Wonders of the World. Many tourists come to see this beautiful structure from different parts of the world.'
 
 
-stop_words = set(stopwords.words('english'))
 
-string = ""
+#Splitting paragraph into sentences using periods.
+split_para = paragraph[:-1].split('.')
 
-string = string.lower()
-
-string_split = string.split('.')
-
-token = word_tokenize(string)
-
-char_to_remove = [',','.']
-
-filtered_sentence = [i for i in token if i not in stop_words and i not in char_to_remove]
+#Converting to lower case and removing punctuation
+table = str.maketrans('','',punctuation)
+sentences = [sentence.translate(table) for sentence in split_para]
 
 
-# Frequency of most occuring word
-most_common = Counter(filtered_sentence).most_common(1)[0][1]
+#Removing stop words
+stop_words = stopwords.words('english')
+filtered_sentences = [words.strip() for words in sentences if words not in stop_words]
 
-# Dictionary containing frequency of each word
-filtered_sentence_dict = dict(Counter(filtered_sentence))
+#Tokenzing the words
+tokens = word_tokenize(' '.join(filtered_sentences))
 
-# Dictionary of frequency of each word divided by freq of most common word
+#Collections of --> Words : Occurance
+c = Counter(tokens)
+most_freq = c.most_common()[0][1] # -> Highest frequency (int)
 
-for k,v in filtered_sentence_dict.items():
-    filtered_sentence_dict[k] = v/most_common
 
-# Score for each sentence
+# List of weighted frequency of words
+weighted_freq_dict = {k:v/most_freq for k,v in c.most_common()}
+
+
+# Totaling scores from each word in a sentence
 sentence_score = {}
-for i in range(len(string_split)):
+for sentence in filtered_sentences:
     score = 0
-    sentence = string_split[i].split(' ')
-    for word in sentence:
-        word = word.replace(',','')
-        if word in filtered_sentence_dict.keys():
-            score += filtered_sentence_dict[word]
-        else:
-            pass
-    sentence_score[string_split[i]] = round(score,2)
+    sentence = sentence.strip()
+    temp_list = sentence.split(' ')
+    for word in temp_list:
+        freq = weighted_freq_dict[word]
+        score += freq
+    sentence_score[sentence + '.'] = score
 
-sorted_sentence_score = {k:v for k,v in sorted(sentence_score.items(), key=lambda item: item[1], reverse = True)}
 
-for i in range(len(list(sorted_sentence_score.items()))):
-    if i != 3:
-        print(list(sorted_sentence_score.items())[i][0].title() + '.')
-    else:
-        break
+sentence_score_sorted = list({k: v for k, v in sorted(sentence_score.items(),key=lambda item : item[1], reverse=True)})
+
+#Degree of Summarization
+deg_of_sum = 3
+
+summary = ''.join(sentence_score_sorted[0:deg_of_sum])
+print(summary)
